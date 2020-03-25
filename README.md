@@ -3,6 +3,13 @@
 
 
 # Some Linux scripts
+
+## show.sh
+- Description: 大数据平台运维脚本
+
+## bbr.sh
+- Description: 开启bbr脚本
+
 ## Superspeed.sh
 - Description: Test your server's network with Speedtest to China
 - Intro:  https://www.oldking.net/305.html
