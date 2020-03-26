@@ -9,22 +9,37 @@ video_dir=/root/video/video-security/video-security
 
 
 oneclick_video(){
-        cd $video_dir && git pull
+    echo -e "${Info}:准备拉取最新代码"
+    cd $video_dir && git pull
     if [ $? -ne 0 ]; then
            log_id=git log|grep commit|head -n1
-           echo -e "${Tip}:本地代码已被修改，强制回滚. log_id:${log_id}"
+           echo -e "${Tip}:本地代码已被修改，强制回滚. log_id:" $log_id
            git reset --hard $log_id
     fi
     echo -e "${Info}:更新代码成功!准备打包"
-    cd video-security-web && mvn clean package -DskipTests=true && cd target && jps -l |grep video|awk '{print $1}'|xargs -i kill -9 {}
+    mvn clean deploy -DskipTests=true && cd video-security-web/target && jps -l |grep video|awk '{print $1}'|xargs -i kill -9 {}
     if [ $? -ne 0 ]; then
-        echo -e "${Error}: error in package. stop everything!"
+	echo -e "${Error}: error in package. stop everything!"
         exit -1
     fi
     echo -e "${Info}:boot video-security..."
-    nohup java -jar video-security*.jar 2>&1 &
     sleep 1s
-    tailf nohup.*
+    nohup java -jar video-security*.jar 2>&1 &
+    sleep 2s
+    clear
+    echo -e "${Info}:Boot done "
+    read -r -p '需要查看启动日志?[y/N]' cs
+    case $cs in
+         [yY][eE][sS]|[yY])
+           echo -e "${Info}: yes"
+           sleep 1s
+	   tailf nohup.*
+           ;;
+         *)
+           echo -e "${Info}: no. pass script"
+           exit 1
+           ;;
+    esac
 }
 
 expand_menu(){
