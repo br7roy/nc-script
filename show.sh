@@ -14,7 +14,11 @@ oneclick_video(){
     if [ $? -ne 0 ]; then
            log_id=git log|grep commit|head -n1
            echo -e "${Tip}:本地代码已被修改，强制回滚. log_id:" $log_id
-           git reset --hard $log_id
+           git reset --hard $log_id && git pull
+           if [ $? -ne 0 ]; then
+           echo -e "${Error}: 拉取代码错误,stop the world"
+           exit 1
+           fi
     fi
     echo -e "${Info}:更新代码成功!准备打包"
     mvn clean deploy -DskipTests=true && cd video-security-web/target && jps -l |grep video|awk '{print $1}'|xargs -i kill -9 {}
@@ -28,7 +32,7 @@ oneclick_video(){
     sleep 2s
     clear
     echo -e "${Info}:Boot done "
-    read -r -p '需要查看启动日志?[y/N]' cs
+    read -r -p '查看启动日志[y/N]' cs
     case $cs in
          [yY][eE][sS]|[yY])
            echo -e "${Info}: yes"
@@ -42,11 +46,30 @@ oneclick_video(){
     esac
 }
 
+check_video(){
+n=$(jps -l |grep video|wc -l)
+if [ $n -gt 0 ]
+   then
+   	echo -e "${Info}:已开启"
+   else
+	echo -e "${Error}:未开启"
+fi
+}
+
+kill_video(){
+  jps -l |grep video|awk '{print $1}'|xargs -i kill -15 {}
+  if [ $? -eq 0 ]
+  then
+     echo -e "${Info}: 一杀死视频安防"
+  else
+     echo -e "${Warn}: 杀死失败"
+  fi
+}
 expand_menu(){
 clear
 echo && echo -e " 一键安装部署管理 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
 --  奇葩脚本 | br7roy.github.io --
-———————————启动管理————————————
+———————————资源管理————————————
  ${Green_font_prefix}1.${Font_color_suffix}  安装 视频安防
  ${Green_font_prefix}2.${Font_color_suffix}  安装 实战平台
 ———————————状态管理————————————
@@ -55,11 +78,11 @@ echo && echo -e " 一键安装部署管理 ${Red_font_prefix}[v${sh_ver}]${Font_
  ${Green_font_prefix}5.${Font_color_suffix}  杀死 视频安防
  ${Green_font_prefix}6.${Font_color_suffix}  杀死 实战平台
 ————————————杂项管理————————————
- ${Green_font_prefix}7.${Font_color_suffix}  一键启动视频安防(使用最新版本代码)
- ${Green_font_prefix}8.${Font_color_suffix}  一键启动实战平台(使用最新版本代码)
- ${Green_font_prefix}9.${Font_color_suffix}  启动大数据集群
- ${Green_font_prefix}10.${Font_color_suffix} 关闭大数据集群
- ${Green_font_prefix}11.${Font_color_suffix} 优化大数据集群
+ ${Green_font_prefix}7.${Font_color_suffix}  启动 视频安防(使用最新版本代码)
+ ${Green_font_prefix}8.${Font_color_suffix}  启动 实战平台(使用最新版本代码)
+ ${Green_font_prefix}9.${Font_color_suffix}  启动 大数据集群
+ ${Green_font_prefix}10.${Font_color_suffix} 关闭 大数据集群
+ ${Green_font_prefix}11.${Font_color_suffix} 优化 大数据集群
  ${Green_font_prefix}12.${Font_color_suffix} 退出脚本
 ————————————————————————————————" && echo
 
