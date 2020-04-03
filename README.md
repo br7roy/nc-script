@@ -7,6 +7,9 @@
 ## show.sh
 - Description: 大数据平台运维脚本
 
+## file-insepect.sh
+- 监控日志目录定时清理
+
 ## bbr.sh
 - Description: 开启bbr脚本
 
