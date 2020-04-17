@@ -57,9 +57,8 @@ oneclick_combat(){
 
     cd $combat_dir
 
-    orilogid=$(git log|grep commit|head -n1|awk '{print $2}')
+    orid=$(git log|grep commit|head -n1|awk '{print $2}')
 
-    echo -e "${Info}: orilogid: ${orilogid}"
     echo -e "${Info}:准备拉取最新代码"
     cd $combat_dir && git pull
     if [ $? -ne 0 ]; then
@@ -73,22 +72,21 @@ oneclick_combat(){
     fi
 
     curId=$(git log|grep commit|head -n1|awk '{print $2}')
-    needpackage="0"
+    needpackage="No"
 
-    echo -e "${Info}: curId : ${curId}"
-    if [ "$orilogid" != "$curId" ]; then
-      needpackage="1"
+    if [ "$orid" != "$curId" ]; then
+      needpackage="Yes"
     fi
 
-    echo -e "${Info}: need package :${needpackage}"
+    echo -e "${Info}: need package : ${needpackage}"
 
 
 
-    read_func
 
-    echo -e "${Info}:Spark-submit Mode: ${depMode}"
 
-    if [ "${needpackage}" = "1" ]; then
+
+
+    if [ "${needpackage}" = "Yes" ]; then
     	echo -e "${Info}:packaging..."
         mvn clean package -DskipTests=true
         if [ $? -ne 0 ]; then
@@ -96,8 +94,22 @@ oneclick_combat(){
             exit -1
         fi
     else
-        echo -e "${Info} 与上次版本对比一致，跳过打包"
+
+        read -p  "与上次版本对比一致，是否打包?默认跳过 [1/yes:pack] " pkg
+        case ${pkg} in
+            [1][yY][eE][sS]|[yY])
+                echo ${pkg}.
+                mvn clean package -DskipTests=true;;
+            *)
+                echo -e "${Info} 跳过打包."
+                ;;
+        esac
     fi
+
+
+    read_func
+
+    echo -e "${Info}:Spark-submit Mode: ${depMode}"
 
     echo -e "${Info} kill server..."
 
@@ -119,6 +131,7 @@ oneclick_combat(){
 	--driver-java-options "-Dlog4j.configuration=file:${prop} \
 	-XX:+PrintGCApplicationConcurrentTime -Xloggc:gc.log" \
 	--conf spark.driver.port=20002 \
+        --jars /data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/lucene-core-5.5.2.jar,/data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/guava-18.0.jar,/data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/jsr166e-1.1.0.jar \
 	$combat_dir/target/combat-platform.jar 2>&1 &
 
     sleep 2s
