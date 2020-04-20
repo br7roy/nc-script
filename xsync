@@ -1,0 +1,22 @@
+#!/bin/bash
+pcount=$# 
+if (( pcount < 1 )) ; then
+        echo no args;
+        exit;
+fi
+
+p1=$1;
+fname=`basename $p1`
+echo $fname;
+
+
+pdir=`cd -P $(dirname $p1) ; pwd`
+echo $pdir
+
+cuser=`whoami`
+for server in $(seq 1 20) ; do
+        echo '======================probd0'${server}'======================'
+        rsync -rvl $pdir/$fname $cuser@probd0${server}:$pdir
+done
+
+exit $?
