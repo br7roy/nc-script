@@ -1,0 +1,21 @@
+#!/bin/bash
+
+pcount=$#
+if (( pcount < 1 )) ; then
+        echo no args;
+        exit;
+fi
+
+
+
+#p1=$1;
+#fname=`basename $1`
+
+pdir=`cd -P $(dirname $1);pwd`
+
+for server in $(seq 1 20) ; do
+        echo '============================================probd0'${server}'============================================'
+        ssh  probd0${server} "cd $pdir && $@"
+done
+exit $?
+
