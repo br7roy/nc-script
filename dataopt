@@ -1,0 +1,12 @@
+#/bin/bash
+info=$(curl 'localhost:9200/_cat/indices?v'|awk '{print$3}')
+for idx in ${info} ; do 
+     echo $idx ;
+     time=$(echo $idx|tr -d "a-zA-Z")
+     echo ${time}
+     stime=${time:0:4}
+     if [ "$stime" -eq 2019 ]; then
+          echo "delete file name:${idx}"
+          curl -XDELETE "http://localhost:9200/${file}?pretty"
+     fi
+done
