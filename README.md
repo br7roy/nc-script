@@ -7,6 +7,9 @@
 ## show.sh
 - Description: 大数据平台运维脚本
 
+## dataopt
+- Description: 删除特定时间的ES索引
+
 ## file-insepect.sh
 - 监控日志目录定时清理
 
