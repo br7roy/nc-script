@@ -1,11 +1,17 @@
 # nc-script
-各种奇葩脚本~
+工作日常脚本
 
 
 # Some Linux scripts
 
 ## show.sh
 - Description: 大数据平台运维脚本
+
+
+## esg
+操纵es脚本
+[x] 调整replicas
+[x] 删除index
 
 ## dataopt
 - Description: 删除特定时间的ES索引
