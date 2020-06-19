@@ -10,8 +10,8 @@
 
 ## esg
 操纵es脚本
-[x] 调整replicas
-[x] 删除index
+- [x] 调整replicas
+- [x] 删除index
 
 ## dataopt
 - Description: 删除特定时间的ES索引
