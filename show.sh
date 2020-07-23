@@ -1,6 +1,6 @@
 #!/bin/bash
 sh_ver="1.0.0"
-ver_desc="该版本支持所有项目的发布"
+ver_desc="该版本只支持实战平台的发布"
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
 Error="${Red_font_prefix}[错误]${Font_color_suffix}"
@@ -51,89 +51,45 @@ oneclick_video(){
 
 oneclick_combat(){
 
-    combat_dir=/root/emit-dep/combat-platform
+    combat_dir=/root/cbt
     ldir=/data/logs/combat-platform/combat-platform.log
-    prop=/root/emit-dep/conf/log4j.properties
+    prop=/root/cbt/conf/log4j.properties
 
     cd $combat_dir
-
-    orid=$(git log|grep commit|head -n1|awk '{print $2}')
-
-    echo -e "${Info}:准备拉取最新代码"
-    cd $combat_dir && git pull
-    if [ $? -ne 0 ]; then
-           log_id=$(git log|grep commit|head -n1|awk '{print $2}')
-           echo -e "${Tip}:本地代码已被修改，强制回滚. log_id:" $log_id
-           git reset --hard $log_id && git pull
-           if [ $? -ne 0 ]; then
-           	echo -e "${Error}: 回滚代码错误,stop the world"
-           	exit 1
-           fi
-    fi
-
-    curId=$(git log|grep commit|head -n1|awk '{print $2}')
-    needpackage="No"
-
-    if [ "$orid" != "$curId" ]; then
-      needpackage="Yes"
-    fi
-
-    echo -e "${Info}: need package : ${needpackage}"
-
-
-
-
-
-
-
-    if [ "${needpackage}" = "Yes" ]; then
-    	echo -e "${Info}:packaging..."
-        mvn clean package -DskipTests=true
-        if [ $? -ne 0 ]; then
-	    echo -e "${Error}: error in package. stop everything!"
-            exit -1
-        fi
-    else
-
-        read -p  "与上次版本对比一致，是否打包?默认跳过 [1/yes:pack] " pkg
-        case ${pkg} in
-            [1][yY][eE][sS]|[yY])
-                echo ${pkg}.
-                mvn clean package -DskipTests=true;;
-            *)
-                echo -e "${Info} 跳过打包."
-                ;;
-        esac
-    fi
 
 
     read_func
 
-    echo -e "${Info}:Spark-submit Mode: ${depMode}"
+    echo -e "${Info}: Spark-submit Mode: ${depMode}"
 
-    echo -e "${Info} kill server..."
+    echo -e "${Info}: kill server..."
 
-    jps -l |grep SparkSubmit|awk '{print $1}'|xargs -i kill -9 {}
+    kill_combat
 
     echo -e "${Info}:boot combat-platform..."
-
-    chmod u+x $combat_dir/target/combat-platform.jar
-
+    en=4
+    ec=32
+    chmod u+x $combat_dir/combat-platform.jar
     sleep 1s
-
 	nohup $SPARK_HOME/bin/spark-submit \
-	--master ${depMode} \
+        --master yarn \
+        --deploy-mode client \
 	--name onlineAnalyse \
-	--num-executors 2 \
-	--driver-memory 512m \
-	--executor-memory 512m \
-	--executor-cores 2 \
+	--num-executors ${en} \
+	--driver-memory 3g \
+	--driver-cores 2 \
+	--executor-memory 35g \
+	--executor-cores ${ec} \
 	--driver-java-options "-Dlog4j.configuration=file:${prop} \
+	-Dexecutor.num=${en} -Dexecutor.core=${ec} \
 	-XX:+PrintGCApplicationConcurrentTime -Xloggc:gc.log" \
 	--conf spark.driver.port=20002 \
-        --jars /data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/lucene-core-5.5.2.jar,/data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/guava-18.0.jar,/data/system/probd/probd-0.3.1/spark-1.6.0-bin-hadoop-2.6.3/external_jars/jsr166e-1.1.0.jar \
-	$combat_dir/target/combat-platform.jar 2>&1 &
-
+        --conf spark.default.parallelism=300 \
+        --conf spark.driver.maxResultSize=2g \
+        --conf spark.kryoserializer.buffer.max=256m \
+        --conf spark.kryoserializer.buffer=128m \
+        --conf spark.memory.fraction=0.8 \
+	$combat_dir/combat-platform.jar 2>&1 &
     sleep 2s
     clear
     echo -e "${Info}:Boot done "
@@ -158,7 +114,7 @@ oneclick_combat(){
 
 read_func(){
     depMode=""
-    while    read -p 'select spark submit master No. [1:local] [2:yarn-client] [3:yarn-master]: ' dep
+    while    read -p 'select spark submit master No. [1:local] [2:yarn-client] [3:yarn-cluster]: ' dep
     do
     case $dep in
         1)
@@ -168,7 +124,7 @@ read_func(){
                 numba=0
             fi
 
-            numba=`echo "$numba*1" | bc `
+            numba= `echo "$numba*1" | bc `
             echo -e "${Info}:Thread numba: ${numba}"
             if [ $numba -gt 0 ]
             then
@@ -181,11 +137,11 @@ read_func(){
             ;;
         2)
             depMode='yarn-client'
-            echo -e '${Info}: Using spark-client Mode.'
+            echo -e "${Info}: Using yarn-client Mode."
             ;;
         3)
-            depMode='yarn-master'
-            echo -e '${Info}: Using spark-master Mode.'
+            depMode='yarn-cluster'
+            echo -e "${Info}: Using yarn-cluster Mode."
             ;;
         *)
 
@@ -267,6 +223,7 @@ echo && echo -e " 一键安装部署管理 ${Red_font_prefix}[v${sh_ver}]${Font_
  ${Green_font_prefix}11.${Font_color_suffix} 优化 大数据集群
  ${Green_font_prefix}12.${Font_color_suffix} 退出脚本
 ————————————————————————————————" && echo
+
 
 echo
 read -p " 请输入数字[1-12]: " num
