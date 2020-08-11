@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /etc/profile
+# clean memory cache
+if [[ $(free -g|awk '{if (NR==2)  print $4}')  -lt '2' ]]; then  echo 1 > /proc/sys/vm/drop_caches ; fi
