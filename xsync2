@@ -1,0 +1,25 @@
+#!/bin/bash
+pcount=$# 
+if (( pcount < 1 )) ; then
+        echo no args;
+        exit;
+fi
+
+p1=$1;
+fname=`basename $p1`
+echo $fname;
+
+
+pdir=`cd -P $(dirname $p1) ; pwd`
+echo $pdir
+
+cuser=`whoami`
+
+cr=(02 03 04 05 06 07 08 09)
+
+for (( i=0; i<${#cr[@]};i++)) do
+        echo "======================probd${cr[i]}======================"
+        rsync -rvl $pdir/$fname $cuser@probd${cr[i]}:$pdir
+done
+
+exit $?
