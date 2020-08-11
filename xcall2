@@ -1,0 +1,25 @@
+#!/bin/bash
+
+pcount=$#
+if (( pcount < 1 )) ; then
+        echo no args;
+        exit;
+fi
+
+
+
+#p1=$1;
+#fname=`basename $1`
+
+
+
+pdir=`cd -P $(dirname $1);pwd`
+
+cr=(02 03 04 05 06 07 08 09)
+
+for (( i=0; i<${#cr[@]};i++)) do
+        echo "======================probd${cr[i]}======================"
+        ssh  probd${cr[i]} "cd $pdir && $@"
+done
+
+exit $?
