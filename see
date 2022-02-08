@@ -1,0 +1,7 @@
+#!/bin/env bash
+# trace tmux log
+pan=$1
+num=$2
+if [ "$num" == "" ];then num=100 ; fi
+
+tmux capture-pane -pt "$pan" -S -"$num"
