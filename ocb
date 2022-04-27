@@ -1,0 +1,23 @@
+#!/bin/env bash 
+pkg=$1 
+dnm="$(
+  cd "$(dirname "$1")"/
+  pwd
+)"
+shift;
+archive=$1
+
+if [[ $achive="" ]];then archive="flink"; fi
+
+echo $pkg
+echo $dnm
+echo $archive
+echo ==========================
+
+tar -zxvf $dnm/$pkg
+echo decompress ... ok
+jar -uvf *$achive*.jar com
+echo update ... ok
+rm -fR com*
+echo clean ... ok
+echo done.
