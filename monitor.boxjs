@@ -3,7 +3,7 @@
   "name": "Yeelovo 开放账号监控",
   "keys": ["yeelovo_token", "yeelovo_interval", "yeelovo_always_notify"],
   "author": "@你的用户名",
-  "repo": "https://github.com/你的用户名/你的仓库",
+  "repo": "https://github.com/br7roy/nc-script",
   "icons": [
     "https://team.yeelovo.com/favicon.ico",
     "https://team.yeelovo.com/favicon.ico"
@@ -37,7 +37,7 @@
     {
       "name": "开放账号监控",
       "type": "cron",
-      "script": "https://raw.githubusercontent.com/你的用户名/你的仓库/main/monitor.js"
+      "script": "https://raw.githubusercontent.com/br7roy/nc-script/refs/heads/master/monitor.js"
     }
   ]
 }
