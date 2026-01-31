@@ -1,15 +1,15 @@
 {
   "id": "yeelovo.monitor.sub",
   "name": "Yeelovo 监控订阅",
-  "author": "@你的用户名",
-  "repo": "https://github.com/你的用户名/你的仓库",
+  "author": "三哥真牛",
+  "repo": "https://github.com/br7roy/nc-script",
   "apps": [
     {
       "id": "yeelovo.monitor",
       "name": "Yeelovo 开放账号监控",
       "keys": ["yeelovo_token", "yeelovo_interval", "yeelovo_always_notify"],
-      "author": "@你的用户名",
-      "repo": "https://github.com/你的用户名/你的仓库",
+      "author": "妹来",
+      "repo": "https://github.com/br7roy/nc-script",
       "icons": [
         "https://team.yeelovo.com/favicon.ico",
         "https://team.yeelovo.com/favicon.ico"
