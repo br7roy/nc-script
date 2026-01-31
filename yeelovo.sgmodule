@@ -1,0 +1,12 @@
+#!name=Yeelovo 开放账号监控
+#!desc=自动监控 Yeelovo 开放账号，有新账号时立即通知
+#!author=出问题找neopang
+#!homepage=https://github.com/br7roy/nc-script
+#!icon=https://team.yeelovo.com/favicon.ico
+#!category=定时任务
+
+[Script]
+Yeelovo监控 = type=cron,cronexp="*/1 * * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/br7roy/nc-script/refs/heads/master/monitor.js,script-update-interval=0
+
+[MITM]
+hostname = %APPEND% team.yeelovo.com
