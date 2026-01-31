@@ -1,0 +1,51 @@
+{
+  "id": "yeelovo.monitor.sub",
+  "name": "Yeelovo 监控订阅",
+  "author": "@你的用户名",
+  "repo": "https://github.com/你的用户名/你的仓库",
+  "apps": [
+    {
+      "id": "yeelovo.monitor",
+      "name": "Yeelovo 开放账号监控",
+      "keys": ["yeelovo_token", "yeelovo_interval", "yeelovo_always_notify"],
+      "author": "@你的用户名",
+      "repo": "https://github.com/你的用户名/你的仓库",
+      "icons": [
+        "https://team.yeelovo.com/favicon.ico",
+        "https://team.yeelovo.com/favicon.ico"
+      ],
+      "settings": [
+        {
+          "id": "yeelovo_token",
+          "name": "LinuxDo Token",
+          "val": "",
+          "type": "textarea",
+          "placeholder": "请粘贴完整的 x-linuxdo-token 值",
+          "desc": "从浏览器请求头中复制 x-linuxdo-token 的值"
+        },
+        {
+          "id": "yeelovo_interval",
+          "name": "检查间隔（分钟）",
+          "val": "1",
+          "type": "number",
+          "placeholder": "1",
+          "desc": "建议设置为 1-5 分钟，过于频繁可能被限制"
+        },
+        {
+          "id": "yeelovo_always_notify",
+          "name": "总是弹出通知",
+          "val": true,
+          "type": "boolean",
+          "desc": "开启：无论是否有新账号都弹通知 | 关闭：仅在有新账号时弹通知"
+        }
+      ],
+      "scripts": [
+        {
+          "name": "开放账号监控",
+          "type": "cron",
+          "script": "https://raw.githubusercontent.com/br7roy/nc-script/refs/heads/master/monitor.js"
+        }
+      ]
+    }
+  ]
+}
