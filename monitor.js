@@ -2,12 +2,11 @@
  * Yeelovo 开放账号监控脚本
  * 
  * 功能：定时检查开放账号，有新账号时通知
- * 作者：自动生成
  * 更新：2026-01-31
  * 
  * Surge 配置：
  * [Script]
- * yeelovo_monitor = type=cron,cronexp="* * * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/你的用户名/你的仓库/main/monitor.js,script-update-interval=0
+ * yeelovo_monitor = type=cron,cronexp="* * * * *",wake-system=1,timeout=20,script-path=https://raw.githubusercontent.com/br7roy/nc-script/refs/heads/master/monitor.js,script-update-interval=0
  */
 
 const $ = new Env('Yeelovo监控');
