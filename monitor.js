@@ -17,6 +17,7 @@ const CONFIG = {
   apiUrl: 'https://team.yeelovo.com/api/open-accounts',
   targetUrl: 'https://team.yeelovo.com/redeem/open-accounts',
   checkInterval: $.getdata('yeelovo_interval') || '1', // 检查间隔（分钟）
+  yeelovo_check_size: $.getdata('yeelovo_check_size') || '1',
   alwaysNotify: $.getdata('yeelovo_always_notify') !== 'false', // 总是通知（默认 true）
 };
 
@@ -51,7 +52,7 @@ async function main() {
     console.log(`📋 规则: 今日剩余次数=${rules.userDailyLimitRemaining}, 积分消耗=${rules.creditCost}`);
 
     // 判断是否有新账号
-    if (items.length > 0) {
+    if (items.length > CONFIG.yeelovo_check_size) {
       // ✅ 有新账号 - 发送通知并跳转
       const message = `发现 ${items.length} 个开放账号！\n剩余兑换次数: ${rules.userDailyLimitRemaining || 0}`;
       console.log(`✅ ${message}`);
