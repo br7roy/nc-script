@@ -32,6 +32,14 @@
           "desc": "建议设置为 1-5 分钟，过于频繁可能被限制"
         },
         {
+          "id": "yeelovo_check_size",
+          "name": "检查返回数组的长度最小值",
+          "val": "1",
+          "type": "number",
+          "placeholder": "1",
+          "desc": "根据已经上车个数设置"
+        },
+        {
           "id": "yeelovo_always_notify",
           "name": "总是弹出通知",
           "val": true,
