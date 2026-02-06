@@ -2,7 +2,7 @@
 // Compatible with Surge / Quantumult X / Loon / Shadowrocket environments
 // This script logs headers, tries multiple persistence APIs, then reads back to verify.
 
-;(function () {
+(function () {
   const KEY = 'yeelovo_token';
   const headers = (typeof $request !== 'undefined' && $request.headers) ? $request.headers : {};
   const getHeader = (name) => headers[name] || headers[name.toLowerCase()] || null;
