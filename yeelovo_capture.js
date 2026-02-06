@@ -1,104 +1,65 @@
-// Capture x-linuxdo-token from request headers and save to key "yeelovo_token"
-// Compatible with Surge / Quantumult X / Loon / Shadowrocket environments
-// This script logs headers, tries multiple persistence APIs, then reads back to verify.
+/*
+ * Yeelovo Token 自动捕获脚本
+ * 
+ * 功能：访问 https://team.yeelovo.com/redeem/open-accounts 时自动捕获并保存 token
+ * 
+ * Surge 配置：
+ * [Script]
+ * yeelovo_token_capture = type=http-request,pattern=^https:\/\/team\.yeelovo\.com\/api\/open-accounts,requires-body=0,max-size=0,script-path=https://raw.githubusercontent.com/br7roy/nc-script/main/capture-token.js
+ */
 
-(function () {
-  const KEY = 'yeelovo_token';
-  const headers = (typeof $request !== 'undefined' && $request.headers) ? $request.headers : {};
-  const getHeader = (name) => headers[name] || headers[name.toLowerCase()] || null;
-  const token = getHeader('x-linuxdo-token') || getHeader('X-Linuxdo-Token') || getHeader('X-LinuxDo-Token');
+const $ = new Env('Yeelovo Token捕获');
 
-  console.log('[yeelovo_capture] triggered, headers=', JSON.stringify(headers));
+// 获取请求头
+const headers = $request.headers;
+const token = headers['x-linuxdo-token'] || headers['X-Linuxdo-Token'];
 
-  if (!token) {
-    console.log('[yeelovo_capture] no x-linuxdo-token in request headers');
-    if (typeof $done === 'function') $done({});
-    return;
+if (token) {
+  // 保存到 BoxJS
+  const saved = $.setdata(token, 'yeelovo_token');
+  
+  if (saved) {
+    console.log('✅ Token 已自动保存');
+    console.log(`Token: ${token.substring(0, 20)}...`);
+    
+    // 发送通知
+    $.msg('Yeelovo 监控', 'Token 已更新', '已自动保存最新的登录凭证');
+  } else {
+    console.log('❌ Token 保存失败');
   }
+} else {
+  console.log('⚠️ 未找到 x-linuxdo-token');
+}
 
-  let wrote = false;
-  const tryWrite = (fn, label) => {
-    try {
-      const res = fn();
-      console.log(`[yeelovo_capture] write attempt ${label} => OK`);
-      wrote = wrote || true;
-    } catch (e) {
-      console.log(`[yeelovo_capture] write attempt ${label} => ERROR: ${e}`);
+$.done({});
+
+// Surge/Loon/QuantumultX 兼容环境
+function Env(name) {
+  const isLoon = typeof $loon !== 'undefined';
+  const isQuanX = typeof $task !== 'undefined';
+  const isSurge = typeof $httpClient !== 'undefined' && !isLoon;
+  
+  const msg = (title, subtitle, message) => {
+    if (isSurge || isLoon) {
+      $notification.post(title, subtitle, message);
+    } else if (isQuanX) {
+      $notify(title, subtitle, message);
     }
   };
-
-  // Surge
-  if (typeof $persistentStore !== 'undefined' && $persistentStore.write) {
-    tryWrite(() => $persistentStore.write(token, KEY), '$persistentStore.write');
-  }
-
-  // Quantumult X
-  if (!wrote && typeof $prefs !== 'undefined') {
-    if ($prefs.setValueForKey) {
-      tryWrite(() => $prefs.setValueForKey(token, KEY), '$prefs.setValueForKey');
-    } else if ($prefs.write) {
-      tryWrite(() => $prefs.write(token, KEY), '$prefs.write');
+  
+  const setdata = (val, key) => {
+    if (isSurge || isLoon) {
+      return $persistentStore.write(val, key);
+    } else if (isQuanX) {
+      return $prefs.setValueForKey(val, key);
     }
-  }
-
-  // Loon / others
-  if (!wrote && typeof $persistentData !== 'undefined' && $persistentData.write) {
-    tryWrite(() => $persistentData.write(token, KEY), '$persistentData.write');
-  }
-
-  // Generic $store
-  if (!wrote && typeof $store !== 'undefined' && $store.write) {
-    tryWrite(() => $store.write(token, KEY), '$store.write');
-  }
-
-  // Some task APIs
-  if (!wrote && typeof $task !== 'undefined' && $task.store) {
-    try {
-      if ($task.store.set) { $task.store.set(KEY, token); console.log('[yeelovo_capture] $task.store.set OK'); wrote = true; }
-    } catch (e) {
-      console.log('[yeelovo_capture] $task.store.set ERROR: ' + e);
-    }
-  }
-
-  // Read back using various read APIs to verify
-  let readBack = null;
-  try {
-    if (typeof $persistentStore !== 'undefined' && $persistentStore.read) readBack = $persistentStore.read(KEY);
-  } catch (e) { console.log('[yeelovo_capture] read $persistentStore.read error: ' + e); }
-  try {
-    if (!readBack && typeof $prefs !== 'undefined') {
-      if ($prefs.getValueForKey) readBack = $prefs.getValueForKey(KEY);
-      else if ($prefs.valueForKey) readBack = $prefs.valueForKey(KEY);
-      else if ($prefs.read) readBack = $prefs.read(KEY);
-    }
-  } catch (e) { console.log('[yeelovo_capture] read $prefs error: ' + e); }
-  try {
-    if (!readBack && typeof $persistentData !== 'undefined' && $persistentData.read) readBack = $persistentData.read(KEY);
-  } catch (e) { console.log('[yeelovo_capture] read $persistentData.error: ' + e); }
-  try {
-    if (!readBack && typeof $store !== 'undefined' && $store.read) readBack = $store.read(KEY);
-  } catch (e) { console.log('[yeelovo_capture] read $store.error: ' + e); }
-
-  console.log('[yeelovo_capture] token=' + token + ' readBack=' + readBack + ' wrote=' + wrote);
-
-  // Notify user (various notification APIs)
-  try {
-    const title = 'Yeelovo Token 捕获';
-    const sub = wrote ? 'Token 已尝试保存' : 'Token 保存尝试失败';
-    const body = `token: ${token}\nreadBack: ${readBack}`;
-    if (typeof $notification !== 'undefined' && $notification.post) {
-      $notification.post(title, sub, body);
-    } else if (typeof $notify === 'function') {
-      $notify(title, sub, body);
-    } else if (typeof $notification === 'function') {
-      $notification(title, sub, body);
-    } else if (typeof $done === 'function') {
-      // no notify API, fallback to console
-      console.log('[yeelovo_capture] no notify API available');
-    }
-  } catch (e) {
-    console.log('[yeelovo_capture] notify error: ' + e);
-  }
-
-  if (typeof $done === 'function') $done({});
-})();
+    return false;
+  };
+  
+  const done = (value = {}) => {
+    if (isQuanX) return $done(value);
+    if (isSurge || isLoon) return $done(value);
+  };
+  
+  return { name, msg, setdata, done };
+}
