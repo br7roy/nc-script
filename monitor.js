@@ -84,7 +84,7 @@ async function main() {
 
   } catch (error) {
     console.log(`❌ 错误: ${error.message}`);
-    $.msg('Yeelovo监控', '运行出错', error.message);
+    // $.msg('Yeelovo监控', '运行出错', error.message);
   } finally {
     $.done();
   }
