@@ -10,10 +10,7 @@
       "keys": ["yeelovo_token", "yeelovo_interval", "yeelovo_always_notify"],
       "author": "妹来",
       "repo": "https://github.com/br7roy/nc-script",
-      "icons": [
-        "https://team.yeelovo.com/favicon.ico",
-        "https://team.yeelovo.com/favicon.ico"
-      ],
+      "icon": "https://team.yeelovo.com/favicon.ico",
       "settings": [
         {
           "id": "yeelovo_token",
